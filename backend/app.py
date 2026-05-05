@@ -15,7 +15,11 @@ except Exception as _import_err:
     raise
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=[
+    "http://127.0.0.1:5173",
+    "http://localhost:5173",
+    "https://bizwiz-khbx.onrender.com",  # backend self (for health checks)
+])
 
 @app.route('/health', methods=['GET'])
 def health():
