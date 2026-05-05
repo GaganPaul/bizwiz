@@ -79,6 +79,11 @@ a {
   color: var(--primary-color);
 }
 
+.nav-links a.btn-primary,
+.nav-links a.btn-primary:hover {
+  color: white;
+}
+
 /* Buttons */
 .btn {
   display: inline-block;
