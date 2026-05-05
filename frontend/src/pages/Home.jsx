@@ -17,7 +17,7 @@ function Home({ user }) {
 
   const handleUpload = async () => {
     if (!file) return;
-    
+
     if (!user) {
       navigate('/login');
       return;
@@ -37,7 +37,7 @@ function Home({ user }) {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || 'Upload failed');
       }
@@ -65,19 +65,19 @@ function Home({ user }) {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">Your AI Business Consultant</h1>
-        <p className="page-subtitle">Upload contracts, policies, and documents to identify risks and compliance gaps under Indian Law.</p>
+        <h1 className="page-title">Bizwiz.</h1>
+        <p className="page-subtitle">An AI-powered business consultant platform that helps you analyze documents like contracts and policies to identify risks, compliance gaps, and legal issues under Indian law, while providing actionable insights and guidance.</p>
       </div>
 
       <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
-        <h2 className="card-title">Analyze a Document</h2>
-        
+        <h2 className="card-title">Upload a Document</h2>
+
         <div className="upload-area" onClick={() => document.getElementById('file-upload').click()}>
-          <input 
-            type="file" 
-            id="file-upload" 
-            style={{ display: 'none' }} 
-            onChange={handleFileChange} 
+          <input
+            type="file"
+            id="file-upload"
+            style={{ display: 'none' }}
+            onChange={handleFileChange}
             accept=".pdf,.docx,.txt"
           />
           {file ? (
@@ -89,9 +89,9 @@ function Home({ user }) {
 
         {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
 
-        <button 
-          className="btn btn-primary" 
-          style={{ width: '100%' }} 
+        <button
+          className="btn btn-primary"
+          style={{ width: '100%' }}
           onClick={handleUpload}
           disabled={!file || loading}
         >

@@ -6,7 +6,7 @@
   --bg-color: #f8fafc;
   --surface-color: #ffffff;
   --text-primary: #1e293b;
-  --text-secondary: #64748b;
+  --text-secondary: #000000;
   --border-color: #e2e8f0;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -75,7 +75,8 @@ a {
   transition: color 0.2s;
 }
 
-.nav-links a:hover, .nav-links a.active {
+.nav-links a:hover,
+.nav-links a.active {
   color: var(--primary-color);
 }
 
@@ -182,7 +183,8 @@ a {
   margin: 2rem 0;
 }
 
-.upload-area:hover, .upload-area.dragover {
+.upload-area:hover,
+.upload-area.dragover {
   border-color: var(--primary-color);
   background-color: rgba(0, 102, 255, 0.05);
 }
@@ -193,13 +195,16 @@ a {
   color: var(--text-primary);
 }
 
-.analysis-content h1, .analysis-content h2, .analysis-content h3 {
+.analysis-content h1,
+.analysis-content h2,
+.analysis-content h3 {
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
   color: var(--primary-color);
 }
 
-.analysis-content ul, .analysis-content ol {
+.analysis-content ul,
+.analysis-content ol {
   margin-left: 1.5rem;
   margin-bottom: 1rem;
 }
@@ -299,7 +304,7 @@ a {
 .page-title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--primary-color);
   margin-bottom: 0.5rem;
 }
 
@@ -319,6 +324,11 @@ a {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
