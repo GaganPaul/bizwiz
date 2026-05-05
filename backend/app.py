@@ -3,13 +3,23 @@ from flask_cors import CORS
 import os
 import uuid
 from datetime import datetime
+import traceback
 
-from firebase_admin_setup import db
-from document_processor import extract_text
-from llm_service import analyze_document_text, chat_with_bot_langchain, get_chat_chain
+try:
+    from firebase_admin_setup import db
+    from document_processor import extract_text
+    from llm_service import analyze_document_text, chat_with_bot_langchain, get_chat_chain
+except Exception as _import_err:
+    print("STARTUP IMPORT ERROR:", _import_err)
+    traceback.print_exc()
+    raise
 
 app = Flask(__name__)
 CORS(app)
+
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "ok"}), 200
 
 @app.route('/upload', methods=['POST'])
 def upload_document():
@@ -96,19 +106,29 @@ def get_user_chats(user_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/chat/<chat_id>', methods=['GET'])
-def get_chat_history(chat_id):
-    try:
-        chain = get_chat_chain(chat_id)
-        messages = chain.memory.chat_memory.messages
-        formatted_messages = []
-        for msg in messages:
-            role = "user" if msg.type == "human" else "assistant"
-            formatted_messages.append({"role": role, "content": msg.content})
-            
-        return jsonify({"messages": formatted_messages}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@app.route('/chat/<chat_id>', methods=['GET', 'DELETE'])
+def chat_by_id(chat_id):
+    if request.method == 'GET':
+        try:
+            chain = get_chat_chain(chat_id)
+            messages = chain.memory.chat_memory.messages
+            formatted_messages = []
+            for msg in messages:
+                role = "user" if msg.type == "human" else "assistant"
+                formatted_messages.append({"role": role, "content": msg.content})
+            return jsonify({"messages": formatted_messages}), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    elif request.method == 'DELETE':
+        if not db:
+            return jsonify({"error": "Database not initialized"}), 500
+        try:
+            db.collection("chats").document(chat_id).delete()
+            db.collection("chat_history").document(chat_id).delete()
+            return jsonify({"message": "Chat deleted successfully"}), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
 @app.route('/documents/<user_id>', methods=['GET'])
 def get_documents(user_id):
@@ -122,24 +142,6 @@ def get_documents(user_id):
             d['extracted_text'] = d.get('extracted_text', '')[:100] + '...'
             results.append(d)
         return jsonify({"documents": results}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/chat/<chat_id>', methods=['DELETE'])
-def delete_chat(chat_id):
-    if not db:
-        return jsonify({"error": "Database not initialized"}), 500
-    try:
-        # Delete from chats collection
-        db.collection("chats").document(chat_id).delete()
-        
-        # Delete messages from chat_history collection
-        # Firestore doesn't automatically delete subcollections or nested data in some setups,
-        # but langchain's FirestoreChatMessageHistory stores it in the document itself or a single doc per session.
-        # Let's delete the doc in chat_history collection.
-        db.collection("chat_history").document(chat_id).delete()
-        
-        return jsonify({"message": "Chat deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
