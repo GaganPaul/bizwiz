@@ -110,8 +110,8 @@ def get_user_chats(user_id):
 def chat_by_id(chat_id):
     if request.method == 'GET':
         try:
-            chain = get_chat_chain(chat_id)
-            messages = chain.memory.chat_memory.messages
+            history = get_chat_chain(chat_id)
+            messages = history.messages
             formatted_messages = []
             for msg in messages:
                 role = "user" if msg.type == "human" else "assistant"

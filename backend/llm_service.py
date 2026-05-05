@@ -1,14 +1,9 @@
 import os
 from langchain_groq import ChatGroq
-from langchain.memory import ConversationBufferMemory
-from langchain.chains import ConversationChain
-from langchain_core.prompts import (
-    ChatPromptTemplate,
-    MessagesPlaceholder,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
 from langchain_google_firestore import FirestoreChatMessageHistory
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.runnables.history import RunnableWithMessageHistory
 from dotenv import load_dotenv
 
 # Initialize Firebase DB
@@ -50,9 +45,7 @@ def analyze_document_text(text):
     llm = get_llm()
     if not llm:
         return "Groq API key not found. Please set groq_api_key in .env"
-    
     try:
-        from langchain_core.messages import SystemMessage, HumanMessage
         messages = [
             SystemMessage(content=SYSTEM_PROMPT),
             HumanMessage(content=f"Please analyze the following document:\n\n{text}")
@@ -63,43 +56,42 @@ def analyze_document_text(text):
         print(f"Error calling Groq API: {e}")
         return "Failed to analyze document."
 
-def get_chat_chain(chat_id):
-    llm = get_llm()
-    if not llm:
-        raise ValueError("Groq API key not found")
-        
-    # Set up Firestore message history
-    message_history = FirestoreChatMessageHistory(
+def get_session_history(chat_id: str) -> FirestoreChatMessageHistory:
+    return FirestoreChatMessageHistory(
         collection="chat_history",
         session_id=chat_id,
         client=db
     )
-    
-    memory = ConversationBufferMemory(
-        memory_key="history",
-        chat_memory=message_history,
-        return_messages=True
-    )
 
-    prompt = ChatPromptTemplate.from_messages([
-        SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT),
-        MessagesPlaceholder(variable_name="history"),
-        HumanMessagePromptTemplate.from_template("{input}")
-    ])
-    
-    chain = ConversationChain(
-        llm=llm,
-        memory=memory,
-        prompt=prompt
-    )
-    
-    return chain
+def get_chat_chain(chat_id: str):
+    """Returns a simple chain with loaded history (for reading messages)."""
+    return get_session_history(chat_id)
 
-def chat_with_bot_langchain(user_input, chat_id):
+def chat_with_bot_langchain(user_input: str, chat_id: str) -> str:
+    llm = get_llm()
+    if not llm:
+        return "Groq API key not found."
     try:
-        chain = get_chat_chain(chat_id)
-        response = chain.invoke({"input": user_input})
-        return response["response"]
+        prompt = ChatPromptTemplate.from_messages([
+            SystemMessage(content=SYSTEM_PROMPT),
+            MessagesPlaceholder(variable_name="history"),
+            ("human", "{input}"),
+        ])
+
+        chain = prompt | llm
+
+        chain_with_history = RunnableWithMessageHistory(
+            chain,
+            get_session_history,
+            input_messages_key="input",
+            history_messages_key="history",
+        )
+
+        response = chain_with_history.invoke(
+            {"input": user_input},
+            config={"configurable": {"session_id": chat_id}},
+        )
+        return response.content
     except Exception as e:
         print(f"Error calling Groq API (LangChain): {e}")
         return "Failed to get response."
