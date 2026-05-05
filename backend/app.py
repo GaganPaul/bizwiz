@@ -18,7 +18,8 @@ app = Flask(__name__)
 CORS(app, origins=[
     "http://127.0.0.1:5173",
     "http://localhost:5173",
-    "https://bizwiz-khbx.onrender.com",  # backend self (for health checks)
+    "https://bizwiz-khbx.onrender.com",
+    "https://bizwiz-frontend-aav7.onrender.com",
 ])
 
 @app.route('/health', methods=['GET'])
