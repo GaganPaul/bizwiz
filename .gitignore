@@ -1,0 +1,29 @@
+# Virtual Environments
+backend/venv/
+venv/
+ENV/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Secrets and API Keys
+.env
+backend/service-account.json
+*.json
+!frontend/package.json
+!frontend/package-lock.json
+
+# Node modules and build output
+frontend/node_modules/
+frontend/dist/
+
+# IDE and OS files
+.DS_Store
+.idea/
+.vscode/
+
+# Render Deployment
+.render/

@@ -1,0 +1,11 @@
+flask
+flask-cors
+firebase-admin
+groq
+PyMuPDF
+python-docx
+python-dotenv
+langchain
+langchain-groq
+langchain-google-firestore
+gunicorn
