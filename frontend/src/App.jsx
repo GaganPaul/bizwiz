@@ -6,7 +6,6 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Chat from './pages/Chat';
-import Landing from './pages/Landing';
 import AuthForm from './components/AuthForm';
 
 function App() {
@@ -59,12 +58,12 @@ function App() {
         </div>
       </nav>
 
-      <div>
+      <div className="container" style={{paddingTop: '2rem'}}>
         <Routes>
-          <Route path="/" element={!user ? <Landing /> : <div className="container" style={{paddingTop: '2rem'}}><Home user={user} /></div>} />
-          <Route path="/login" element={!user ? <div className="container" style={{paddingTop: '2rem'}}><AuthForm /></div> : <Navigate to="/dashboard" />} />
-          <Route path="/dashboard" element={user ? <div className="container" style={{paddingTop: '2rem'}}><Dashboard user={user} /></div> : <Navigate to="/login" />} />
-          <Route path="/chat" element={user ? <div className="container" style={{paddingTop: '2rem'}}><Chat user={user} /></div> : <Navigate to="/login" />} />
+          <Route path="/" element={<Home user={user} />} />
+          <Route path="/login" element={!user ? <AuthForm /> : <Navigate to="/dashboard" />} />
+          <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} />
+          <Route path="/chat" element={user ? <Chat user={user} /> : <Navigate to="/login" />} />
         </Routes>
       </div>
     </Router>
