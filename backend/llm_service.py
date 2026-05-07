@@ -56,6 +56,31 @@ def analyze_document_text(text):
         print(f"Error calling Groq API: {e}")
         return "Failed to analyze document."
 
+IDEA_PROMPT = """You are Bizwiz, an expert AI business consultant for India.
+The user will provide a business idea. You need to analyze it and provide a structured report:
+1. Viability & Market Potential (in India)
+2. Legal & Regulatory Requirements (Licenses, registrations)
+3. Potential Risks & Challenges
+4. Estimated Initial Steps to Launch
+5. Overall Verdict
+
+Be encouraging but highly practical and realistic."""
+
+def verify_business_idea(idea_text):
+    llm = get_llm()
+    if not llm:
+        return "Groq API key not found."
+    try:
+        messages = [
+            SystemMessage(content=IDEA_PROMPT),
+            HumanMessage(content=f"Here is my business idea:\n\n{idea_text}")
+        ]
+        response = llm.invoke(messages)
+        return response.content
+    except Exception as e:
+        print(f"Error calling Groq API: {e}")
+        return "Failed to verify idea."
+
 def get_session_history(chat_id: str) -> FirestoreChatMessageHistory:
     return FirestoreChatMessageHistory(
         collection="chat_history",

@@ -8,7 +8,7 @@ import traceback
 try:
     from firebase_admin_setup import db
     from document_processor import extract_text
-    from llm_service import analyze_document_text, chat_with_bot_langchain, get_chat_chain
+    from llm_service import analyze_document_text, chat_with_bot_langchain, get_chat_chain, verify_business_idea
 except Exception as _import_err:
     print("STARTUP IMPORT ERROR:", _import_err)
     traceback.print_exc()
@@ -62,6 +62,35 @@ def upload_document():
             print(f"Failed to save to Firestore: {e}")
             
     return jsonify({"message": "File uploaded and analyzed", "document": doc_data}), 200
+
+@app.route('/verify-idea', methods=['POST'])
+def verify_idea():
+    data = request.json
+    idea = data.get('idea', '')
+    user_id = data.get('user_id', 'anonymous')
+    
+    if not idea:
+        return jsonify({"error": "No idea provided"}), 400
+        
+    analysis_result = verify_business_idea(idea)
+    
+    idea_id = str(uuid.uuid4())
+    doc_data = {
+        "id": idea_id,
+        "user_id": user_id,
+        "idea_text": idea,
+        "analysis_result": analysis_result,
+        "type": "idea_verification",
+        "timestamp": datetime.utcnow()
+    }
+    
+    if db:
+        try:
+            db.collection("documents").document(idea_id).set(doc_data)
+        except Exception as e:
+            print(f"Failed to save to Firestore: {e}")
+            
+    return jsonify({"message": "Idea verified", "document": doc_data}), 200
 
 @app.route('/chat', methods=['POST'])
 def chat():

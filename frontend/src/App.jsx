@@ -6,6 +6,8 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Chat from './pages/Chat';
+import IdeaVerification from './pages/IdeaVerification';
+import Contact from './pages/Contact';
 import AuthForm from './components/AuthForm';
 
 function App() {
@@ -47,8 +49,10 @@ function App() {
             <Link to="/">Home</Link>
             {user ? (
               <>
+                <Link to="/idea-verification">Idea Check</Link>
                 <Link to="/dashboard">Dashboard</Link>
                 <Link to="/chat">Chat</Link>
+                <Link to="/contact">Contact</Link>
                 <button onClick={handleLogout} className="btn btn-outline" style={{padding: '0.25rem 0.75rem', fontSize:'0.8rem'}}>Logout</button>
               </>
             ) : (
@@ -62,8 +66,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Home user={user} />} />
           <Route path="/login" element={!user ? <AuthForm /> : <Navigate to="/dashboard" />} />
+          <Route path="/idea-verification" element={user ? <IdeaVerification user={user} /> : <Navigate to="/login" />} />
           <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} />
           <Route path="/chat" element={user ? <Chat user={user} /> : <Navigate to="/login" />} />
+          <Route path="/contact" element={user ? <Contact /> : <Navigate to="/login" />} />
         </Routes>
       </div>
     </Router>
