@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import config from '../config';
+import { getBackendUrl } from '../config';
 
 function IdeaVerification({ user }) {
   const [idea, setIdea] = useState('');
@@ -15,7 +15,7 @@ function IdeaVerification({ user }) {
     setResult(null);
 
     try {
-      const response = await fetch(`${config.API_BASE_URL}/verify-idea`, {
+      const response = await fetch(`${getBackendUrl()}/verify-idea`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
